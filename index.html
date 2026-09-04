@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Gestión de Intercambios 26/27 · CRFPTIC</title>
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 
@@ -138,11 +138,6 @@
             <div class="field"><label for="fCoordNombre">Nombre</label><input type="text" id="fCoordNombre"></div>
             <div class="field"><label for="fCoordCorreo">Correo educacyl</label><input type="email" id="fCoordCorreo" placeholder="nombre@educa.jcyl.es"></div>
           </div>
-          <div class="field" style="margin-top:10px;">
-            <label for="fCoordDni">DNI</label>
-            <input type="text" id="fCoordDni" placeholder="12345678A">
-            <div class="field-hint">Dato personal sensible: solo lo ven administradores autenticados.</div>
-          </div>
         </fieldset>
 
         <div class="field">
@@ -181,10 +176,11 @@
           </details>
         </div>
 
-        <div class="field">
-          <label for="fIncidencias">Incidencias</label>
-          <textarea id="fIncidencias" placeholder="Anota aquí cualquier incidencia relacionada con este intercambio…"></textarea>
-        </div>
+        <details class="fieldset" open>
+          <summary style="cursor:pointer; font-family:'IBM Plex Serif',Georgia,serif; font-weight:600; font-size:13.5px;">Incidencias</summary>
+          <div id="fIncidenciasList" class="incidencias-list"></div>
+          <button type="button" class="btn small ghost" id="addIncidenciaBtn" style="margin-top:10px;">+ Añadir incidencia</button>
+        </details>
 
         <div class="field">
           <label for="fActualizadoPor">Actualizado por</label>
@@ -215,14 +211,12 @@
       <div class="checkbox-list">
         <label><input type="checkbox" id="colPublico" checked> Datos públicos (provincia, tipo, puntuación, importe, destinos)</label>
         <label><input type="checkbox" id="colCoordinador" checked> Coordinador (nombre y correo)</label>
-        <label><input type="checkbox" id="colDni"> DNI del coordinador</label>
         <label><input type="checkbox" id="colTelefono" checked> Teléfono del centro (dato oficial)</label>
         <label><input type="checkbox" id="colFechas" checked> Fechas en destino y en CyL</label>
         <label><input type="checkbox" id="colMemoriaIntercambio" checked> Memoria de intercambio</label>
         <label><input type="checkbox" id="colMemoriaEconomica" checked> Memoria económica</label>
-        <label><input type="checkbox" id="colIncidencias" checked> Incidencias</label>
+        <label><input type="checkbox" id="colIncidencias" checked> Incidencias (fecha, autor y texto de cada una)</label>
       </div>
-      <div class="field-hint">El DNI se deja sin marcar por defecto para evitar compartirlo sin querer: márcalo solo si de verdad lo necesitas en el archivo.</div>
     </div>
     <div class="modal-actions">
       <button type="button" class="btn" id="exportXlsBtn">⬇ Descargar XLS</button>
@@ -243,6 +237,6 @@
 
 <script src="firebase-config.js?v=3"></script>
 <script src="data.js?v=3"></script>
-<script src="app.js?v=3"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>
