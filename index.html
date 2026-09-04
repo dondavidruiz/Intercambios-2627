@@ -1,398 +1,32 @@
-<title>Intercambios Aprobados 26/27</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
-
-  :root{
-    color-scheme: light;
-    --bg:#F3F5F6;
-    --surface:#FFFFFF;
-    --surface-2:#EAEEF1;
-    --ink:#1B2430;
-    --ink-secondary:#57616F;
-    --ink-muted:#828C99;
-    --border:#DCE1E6;
-    --border-strong:#C4CBD2;
-    --gold:#9C7028;
-    --gold-soft:#F4E8D2;
-    --gold-ring:#E3CB98;
-    --public:#2A78D6;
-    --public-soft:#E4EEFA;
-    --public-ring:#B9D3F1;
-    --concertado:#D2591F;
-    --concertado-soft:#FBEAE0;
-    --concertado-ring:#F0C4A9;
-    --shadow: 0 1px 2px rgba(27,36,48,0.06), 0 6px 16px -8px rgba(27,36,48,0.12);
-  }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      color-scheme: dark;
-      --bg:#12161C;
-      --surface:#1A2029;
-      --surface-2:#212933;
-      --ink:#E9EDF1;
-      --ink-secondary:#AEB8C4;
-      --ink-muted:#7C8896;
-      --border:#2A323C;
-      --border-strong:#3A4450;
-      --gold:#D9A857;
-      --gold-soft:#332918;
-      --gold-ring:#5B4726;
-      --public:#4F93E8;
-      --public-soft:#1B2A3D;
-      --public-ring:#2E4A6B;
-      --concertado:#E67A44;
-      --concertado-soft:#3A2417;
-      --concertado-ring:#5E3A20;
-      --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 8px 20px -10px rgba(0,0,0,0.5);
-    }
-  }
-  :root[data-theme="dark"]{
-    color-scheme: dark;
-    --bg:#12161C;
-    --surface:#1A2029;
-    --surface-2:#212933;
-    --ink:#E9EDF1;
-    --ink-secondary:#AEB8C4;
-    --ink-muted:#7C8896;
-    --border:#2A323C;
-    --border-strong:#3A4450;
-    --gold:#D9A857;
-    --gold-soft:#332918;
-    --gold-ring:#5B4726;
-    --public:#4F93E8;
-    --public-soft:#1B2A3D;
-    --public-ring:#2E4A6B;
-    --concertado:#E67A44;
-    --concertado-soft:#3A2417;
-    --concertado-ring:#5E3A20;
-    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 8px 20px -10px rgba(0,0,0,0.5);
-  }
-
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--ink);
-    font-family:"IBM Plex Sans", system-ui, sans-serif;
-    -webkit-font-smoothing:antialiased;
-  }
-  .mono{ font-family:"IBM Plex Mono", ui-monospace, monospace; font-variant-numeric:tabular-nums; }
-  .serif{ font-family:"IBM Plex Serif", Georgia, serif; }
-
-  a{ color:inherit; }
-
-  .masthead{
-    border-bottom:1px solid var(--border-strong);
-    background:var(--surface);
-  }
-  .masthead-inner{
-    max-width:1180px;
-    margin:0 auto;
-    padding:26px 24px 20px;
-  }
-  .eyebrow{
-    font-size:11.5px;
-    letter-spacing:.09em;
-    text-transform:uppercase;
-    color:var(--gold);
-    font-weight:600;
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-  .eyebrow::before{
-    content:"";
-    width:7px; height:7px;
-    border-radius:1px;
-    background:var(--gold);
-    display:inline-block;
-    transform:rotate(45deg);
-  }
-  h1{
-    font-family:"IBM Plex Serif", Georgia, serif;
-    font-weight:700;
-    font-size:clamp(24px,3.4vw,34px);
-    line-height:1.15;
-    margin:8px 0 6px;
-    text-wrap:balance;
-  }
-  .subtitle{
-    color:var(--ink-secondary);
-    font-size:14.5px;
-    max-width:64ch;
-    line-height:1.5;
-    margin:0;
-  }
-
-  .stats-row{
-    max-width:1180px;
-    margin:0 auto;
-    padding:18px 24px 0;
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-    gap:12px;
-  }
-  .stat-tile{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:10px;
-    padding:14px 16px;
-    box-shadow:var(--shadow);
-  }
-  .stat-tile .label{
-    font-size:11px;
-    text-transform:uppercase;
-    letter-spacing:.06em;
-    color:var(--ink-muted);
-    font-weight:600;
-  }
-  .stat-tile .value{
-    font-family:"IBM Plex Mono", monospace;
-    font-weight:600;
-    font-size:24px;
-    margin-top:4px;
-    font-variant-numeric:tabular-nums;
-  }
-  .stat-tile .sub{
-    font-size:12px;
-    color:var(--ink-secondary);
-    margin-top:2px;
-  }
-
-  main{
-    max-width:1180px;
-    margin:0 auto;
-    padding:22px 24px 60px;
-  }
-
-  section{ margin-top:26px; }
-  .section-head{
-    display:flex;
-    align-items:baseline;
-    justify-content:space-between;
-    gap:12px;
-    margin-bottom:12px;
-    flex-wrap:wrap;
-  }
-  .section-title{
-    font-family:"IBM Plex Serif", Georgia, serif;
-    font-weight:600;
-    font-size:17px;
-  }
-  .section-note{
-    font-size:12.5px;
-    color:var(--ink-muted);
-  }
-
-  .panel{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:12px;
-    padding:16px 18px;
-    box-shadow:var(--shadow);
-  }
-
-  .charts-grid{
-    display:grid;
-    grid-template-columns: 1.35fr 1fr;
-    gap:14px;
-  }
-  @media (max-width:820px){ .charts-grid{ grid-template-columns:1fr; } }
-
-  .legend{
-    display:flex;
-    gap:16px;
-    align-items:center;
-    font-size:12.5px;
-    color:var(--ink-secondary);
-    margin-bottom:10px;
-  }
-  .legend-item{ display:flex; align-items:center; gap:6px; }
-  .swatch{ width:10px; height:10px; border-radius:2px; display:inline-block; }
-
-  .bar-row{ display:flex; align-items:center; gap:10px; padding:3px 0; }
-  .bar-row .country{ width:118px; flex:none; font-size:12.5px; color:var(--ink-secondary); text-align:right; }
-  .bar-track{ flex:1; background:var(--surface-2); border-radius:4px; height:16px; position:relative; overflow:hidden; }
-  .bar-fill{ height:100%; background:var(--gold); border-radius:4px; transition:width .5s ease; }
-  .bar-value{ width:40px; flex:none; font-size:12px; font-family:"IBM Plex Mono",monospace; color:var(--ink); text-align:left; }
-
-  .split-block{ margin-bottom:16px; }
-  .split-block:last-child{ margin-bottom:0; }
-  .split-label{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--ink-secondary); margin-bottom:5px; }
-  .split-bar{ display:flex; height:20px; border-radius:5px; overflow:hidden; border:1px solid var(--border); }
-  .split-seg{ display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; color:#fff; font-family:"IBM Plex Mono",monospace; white-space:nowrap; overflow:hidden; }
-  .split-seg.public{ background:var(--public); }
-  .split-seg.concertado{ background:var(--concertado); }
-
-  .controls{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-    align-items:center;
-  }
-  .controls input[type="search"]{
-    flex:1 1 220px;
-    min-width:180px;
-  }
-  .controls input[type="search"], .controls select{
-    background:var(--surface-2);
-    border:1px solid var(--border);
-    color:var(--ink);
-    border-radius:8px;
-    padding:9px 11px;
-    font-size:13.5px;
-    font-family:inherit;
-  }
-  .controls select{ cursor:pointer; }
-  .controls input[type="search"]:focus, .controls select:focus{
-    outline:2px solid var(--public-ring);
-    outline-offset:1px;
-  }
-  .tipo-toggle{
-    display:flex;
-    border:1px solid var(--border);
-    border-radius:8px;
-    overflow:hidden;
-  }
-  .tipo-toggle button{
-    border:none;
-    background:var(--surface-2);
-    color:var(--ink-secondary);
-    font-family:inherit;
-    font-size:13px;
-    font-weight:600;
-    padding:9px 13px;
-    cursor:pointer;
-  }
-  .tipo-toggle button + button{ border-left:1px solid var(--border); }
-  .tipo-toggle button.active[data-tipo="publico"]{ background:var(--public-soft); color:var(--public); }
-  .tipo-toggle button.active[data-tipo="concertado"]{ background:var(--concertado-soft); color:var(--concertado); }
-  .tipo-toggle button.active[data-tipo="todos"]{ background:var(--gold-soft); color:var(--gold); }
-  .tipo-toggle button:focus-visible{ outline:2px solid var(--public-ring); outline-offset:-2px; }
-
-  .results-count{
-    font-size:12.5px;
-    color:var(--ink-muted);
-    margin:12px 2px 12px;
-  }
-
-  .cards-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(300px,1fr));
-    gap:14px;
-  }
-  .card{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:12px;
-    padding:15px 16px 16px;
-    box-shadow:var(--shadow);
-    display:flex;
-    flex-direction:column;
-    gap:11px;
-  }
-  .card-head{
-    display:flex;
-    justify-content:space-between;
-    gap:8px;
-    align-items:flex-start;
-  }
-  .card-title{
-    font-family:"IBM Plex Serif", Georgia, serif;
-    font-weight:600;
-    font-size:15px;
-    line-height:1.3;
-    text-wrap:balance;
-  }
-  .badge{
-    flex:none;
-    font-size:10.5px;
-    font-weight:700;
-    letter-spacing:.03em;
-    text-transform:uppercase;
-    padding:3px 8px;
-    border-radius:20px;
-    border:1px solid transparent;
-  }
-  .badge.publico{ background:var(--public-soft); color:var(--public); border-color:var(--public-ring); }
-  .badge.concertado{ background:var(--concertado-soft); color:var(--concertado); border-color:var(--concertado-ring); }
-
-  .card-meta{
-    display:flex;
-    flex-wrap:wrap;
-    gap:6px 14px;
-    font-size:12px;
-    color:var(--ink-muted);
-  }
-  .card-meta span.mono{ color:var(--ink-secondary); }
-
-  .card-stats{
-    display:flex;
-    gap:18px;
-    padding:9px 0;
-    border-top:1px dashed var(--border);
-    border-bottom:1px dashed var(--border);
-  }
-  .card-stats .stat{ flex:1; }
-  .card-stats .stat .k{ font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-muted); font-weight:600; }
-  .card-stats .stat .v{ font-family:"IBM Plex Mono",monospace; font-weight:600; font-size:15.5px; margin-top:2px; }
-  .card-stats .stat.importe .v{ color:var(--gold); }
-
-  .destinos{ display:flex; flex-direction:column; gap:6px; }
-  .destinos .dhead{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-muted); font-weight:600; }
-  .dest-row{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    background:var(--surface-2);
-    border-radius:7px;
-    padding:6px 10px;
-    font-size:13px;
-    gap:8px;
-  }
-  .dest-row.match{ outline:1.5px solid var(--gold-ring); background:var(--gold-soft); }
-  .dest-name{ display:flex; align-items:center; gap:7px; min-width:0; }
-  .dest-name .flag{ font-size:15px; line-height:1; }
-  .dest-name .country-text{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .dest-count{ font-family:"IBM Plex Mono",monospace; font-weight:600; font-size:12.5px; color:var(--ink-secondary); flex:none; }
-
-  .note{
-    font-size:11.5px;
-    color:var(--ink-muted);
-    background:var(--surface-2);
-    border-radius:7px;
-    padding:6px 9px;
-    line-height:1.4;
-  }
-
-  .empty-state{
-    text-align:center;
-    padding:50px 20px;
-    color:var(--ink-muted);
-    font-size:14px;
-  }
-
-  footer{
-    max-width:1180px;
-    margin:0 auto;
-    padding:8px 24px 40px;
-    font-size:12px;
-    color:var(--ink-muted);
-    line-height:1.6;
-    border-top:1px solid var(--border);
-    margin-top:10px;
-    padding-top:16px;
-  }
-  footer strong{ color:var(--ink-secondary); }
-
-  ::selection{ background:var(--gold-soft); }
-</style>
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gestión de Intercambios 26/27 · CRFPTIC</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
 
 <div class="masthead">
   <div class="masthead-inner">
-    <div class="eyebrow">CRFPTIC · Programa de Intercambios Escolares · Curso 2026/2027</div>
-    <h1>Intercambios escolares con financiación aprobada</h1>
-    <p class="subtitle">Centros públicos y concertados de Castilla y León con subvención concedida para realizar intercambios escolares con centros educativos de otros países en el curso 2026/2027.</p>
+    <div class="masthead-text">
+      <div class="eyebrow">CRFPTIC · Programa de Intercambios Escolares · Curso 2026/2027</div>
+      <h1>Gestión de intercambios con financiación aprobada</h1>
+      <p class="subtitle">Consulta y filtra los centros públicos y concertados de Castilla y León con subvención concedida. Los datos de gestión de cada centro (coordinador, fechas, memorias, incidencias) solo pueden abrirse y editarse con la clave de administrador.</p>
+    </div>
+    <div class="admin-box">
+      <div id="adminSignedOut">
+        <button class="btn primary" id="openLoginBtn" type="button">🔒 Acceso administrador</button>
+      </div>
+      <div id="adminSignedIn" hidden style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+        <span class="admin-pill"><span class="dot"></span>Sesión de administrador activa</span>
+        <div style="display:flex; gap:8px;">
+          <button class="btn small" id="downloadBtn" type="button" hidden>⬇ Descargar datos</button>
+          <button class="btn small ghost" id="logoutBtn" type="button">Cerrar sesión</button>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="stats-row" id="statsRow"></div>
 </div>
@@ -404,15 +38,15 @@
       <div class="section-title">Panorama general</div>
       <div class="section-note">Cifras calculadas sobre los 51 centros con intercambio aprobado</div>
     </div>
-    <div class="charts-grid">
+    <div class="charts-grid" style="display:grid; grid-template-columns:1.35fr 1fr; gap:14px;">
       <div class="panel">
         <div class="section-note" style="margin-bottom:10px;">Alumnado por país de destino (total de alumnos/as previstos)</div>
         <div id="countryChart"></div>
       </div>
       <div class="panel">
-        <div class="legend">
-          <span class="legend-item"><span class="swatch" style="background:var(--public)"></span>Público</span>
-          <span class="legend-item"><span class="swatch" style="background:var(--concertado)"></span>Concertado</span>
+        <div class="legend" style="display:flex; gap:16px; align-items:center; font-size:12.5px; color:var(--ink-secondary); margin-bottom:10px;">
+          <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;display:inline-block;background:var(--public)"></span>Público</span>
+          <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;display:inline-block;background:var(--concertado)"></span>Concertado</span>
         </div>
         <div id="splitCharts"></div>
       </div>
@@ -426,16 +60,12 @@
     <div class="panel controls">
       <input type="search" id="searchInput" placeholder="Buscar centro o código…" aria-label="Buscar centro">
       <div class="tipo-toggle" id="tipoToggle">
-        <button data-tipo="todos" class="active">Todos</button>
-        <button data-tipo="publico">Público</button>
-        <button data-tipo="concertado">Concertado</button>
+        <button data-tipo="todos" class="active" type="button">Todos</button>
+        <button data-tipo="publico" type="button">Público</button>
+        <button data-tipo="concertado" type="button">Concertado</button>
       </div>
-      <select id="provinciaSelect" aria-label="Filtrar por provincia">
-        <option value="todas">Todas las provincias</option>
-      </select>
-      <select id="paisSelect" aria-label="Filtrar por país de destino">
-        <option value="todos">Todos los destinos</option>
-      </select>
+      <select id="provinciaSelect" aria-label="Filtrar por provincia"><option value="todas">Todas las provincias</option></select>
+      <select id="paisSelect" aria-label="Filtrar por país de destino"><option value="todos">Todos los destinos</option></select>
       <select id="sortSelect" aria-label="Ordenar">
         <option value="alfabetico">Orden alfabético</option>
         <option value="importe">Mayor importe</option>
@@ -451,240 +81,167 @@
 
 <footer>
   <strong>Fuentes:</strong> Orden EDU/571/2026, de 12 de junio, de la Consejería de Educación (BOCYL n.º 116, 18/06/2026) — centros públicos; y Orden EDU/604/2026, de 30 de junio, de la Consejería de Educación (BOCYL n.º 127, 03/07/2026) — centros privados concertados. El importe mostrado por centro es la cuantía total concedida en la resolución; cuando un centro tiene varios destinos, la resolución no desglosa el importe por país. La provincia se deduce de los dos primeros dígitos del código de centro.
+  <br><br>
+  Los datos de gestión (coordinador, fechas, memorias, incidencias) los introducen los administradores del programa y se guardan de forma privada; no proceden de las resoluciones citadas.
 </footer>
 
-<script>
-(function(){
+<!-- ===================== MODAL: LOGIN ADMINISTRADOR ===================== -->
+<div class="overlay" id="loginOverlay" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h2>Acceso de administrador</h2>
+        <div class="sub">Introduce la clave para abrir y editar las fichas de gestión.</div>
+      </div>
+      <button class="modal-close" id="loginClose" type="button" aria-label="Cerrar">×</button>
+    </div>
+    <form id="loginForm">
+      <div class="modal-body">
+        <div class="field">
+          <label for="loginPassword">Clave de administrador</label>
+          <input type="password" id="loginPassword" autocomplete="current-password" required>
+        </div>
+        <div class="field">
+          <label for="loginNombre">Tu nombre (opcional, queda registrado en lo que guardes)</label>
+          <input type="text" id="loginNombre" autocomplete="name">
+        </div>
+        <div class="error-msg" id="loginError" hidden></div>
+        <div class="field-hint">Esta clave solo controla quién puede editar. Cualquiera puede ver y filtrar el listado sin ella.</div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" id="loginCancel" onclick="document.getElementById('loginClose').click()">Cancelar</button>
+        <button type="submit" class="btn primary" id="loginSubmit">Entrar</button>
+      </div>
+    </form>
+  </div>
+</div>
 
-  var PUBLICOS = [
-    {n:"IES FRANCISCO GINER DE LOS RÍOS", c:"40003708", p:"Segovia", pt:14.8, im:5000, d:[["Estados Unidos",7],["Noruega",2]]},
-    {n:"IES MARÍA MOLINER", c:"40003666", p:"Segovia", pt:13.6, im:4900, d:[["Alemania",10],["Francia",2],["Canadá",2]]},
-    {n:"IES VENANCIO BLANCO", c:"37009131", p:"Salamanca", pt:13.3, im:3000, d:[["Francia",10]]},
-    {n:"IES VILLA DEL MONCAYO", c:"42004029", p:"Soria", pt:13, im:4150, d:[["Canadá",5],["Francia",3]]},
-    {n:"IES ANTONIO TOVAR", c:"47006171", p:"Valladolid", pt:13, im:2600, d:[["Canadá",4]]},
-    {n:"IES LOS SAUCES", c:"49000391", p:"Zamora", pt:12.8, im:3900, d:[["Canadá",6]]},
-    {n:"IES MATEO HERNÁNDEZ", c:"37006014", p:"Salamanca", pt:12.4, im:3300, d:[["Lituania",6],["Francia",3],["Alemania",2]]},
-    {n:"IES FERNANDO I", c:"24018544", p:"León", pt:12.25, im:2100, d:[["Eslovenia",7]]},
-    {n:"IES VIRGEN DEL ESPINO", c:"42002744", p:"Soria", pt:12.2, im:5000, d:[["Países Bajos",12],["Alemania",20]]},
-    {n:"IES RIBERA DEL DUERO", c:"09008639", p:"Burgos", pt:12, im:2400, d:[["Italia",8]]},
-    {n:"IES DELICIAS", c:"47004913", p:"Valladolid", pt:12, im:5000, d:[["Canadá",4],["Alemania",10]]},
-    {n:"IES JUAN DE JUNI", c:"47006673", p:"Valladolid", pt:11.4, im:5000, d:[["Canadá",8]]},
-    {n:"IES LEÓN FELIPE", c:"49000418", p:"Zamora", pt:11.2, im:4500, d:[["Italia",15]]},
-    {n:"IES ORDOÑO II", c:"24006049", p:"León", pt:10.75, im:1800, d:[["Noruega",6]]},
-    {n:"IES VÍA DE LA PLATA", c:"37010108", p:"Salamanca", pt:10.55, im:3000, d:[["Italia",10]]},
-    {n:"IES EULOGIO FLORENTINO SANZ", c:"05000427", p:"Ávila", pt:10.5, im:3900, d:[["Francia",13]]},
-    {n:"IES LA RAMBLA", c:"42003700", p:"Soria", pt:10.2, im:1200, d:[["Francia",4]]},
-    {n:"IES EMILIO FERRARI", c:"47004585", p:"Valladolid", pt:10.2, im:3900, d:[["Alemania",13]]},
-    {n:"IES RECESVINTO", c:"34003749", p:"Palencia", pt:10, im:3000, d:[["Italia",10]]},
-    {n:"IES VICTORIO MACHO", c:"34003038", p:"Palencia", pt:9.55, im:5000, d:[["Italia",9],["Hungría",9]]},
-    {n:"IES EL SEÑOR DE BEMBIBRE", c:"24000990", p:"León", pt:9.25, im:1200, d:[["Alemania",4]]},
-    {n:"IES JAIME GIL DE BIEDMA", c:"40002169", p:"Segovia", pt:9.2, im:3600, d:[["Francia",12]]},
-    {n:"IES MERINDADES DE CASTILLA", c:"09007179", p:"Burgos", pt:9.15, im:3600, d:[["República Checa",12]]},
-    {n:"IES VASCO DE LA ZARZA", c:"05000737", p:"Ávila", pt:9, im:1500, d:[["Francia",5]]},
-    {n:"IES DIEGO MARÍN AGUILERA", c:"09008263", p:"Burgos", pt:9, im:5000, d:[["Alemania",20]]},
-    {n:"IES LANCIA", c:"24017497", p:"León", pt:9, im:1200, d:[["Francia",4]]},
-    {n:"IES JULIÁN MARÍAS", c:"47007525", p:"Valladolid", pt:8.75, im:5000, d:[["Noruega",8],["Alemania",20]]},
-    {n:"IES GIL Y CARRASCO", c:"24008381", p:"León", pt:8.25, im:3000, d:[["Francia",10]]},
-    {n:"IES ALFONSO VI", c:"47005991", p:"Valladolid", pt:8.2, im:5000, d:[["Francia",20]]},
-    {n:"IES ZORRILLA", c:"47004615", p:"Valladolid", pt:8.2, im:5000, d:[["Francia",30]]},
-    {n:"IES ALONSO BERRUGUETE", c:"34001911", p:"Palencia", pt:8.15, im:5000, d:[["Alemania",6],["Países Bajos",6],["Francia",6],["Suecia",6]]},
-    {n:"IES LUCÍA DE MEDRANO", c:"37005861", p:"Salamanca", pt:8.1, im:2600, d:[["Canadá",4]]},
-    {n:"IES FERNANDO DE ROJAS", c:"37008084", p:"Salamanca", pt:8, im:4550, d:[["Canadá",7]]},
-    {n:"IES MARGARITA DE FUENMAYOR", c:"42003670", p:"Soria", pt:8, im:5000, d:[["Italia",25]]},
-    {n:"IES CONDE DIEGO PORCELOS", c:"09001670", p:"Burgos", pt:7.25, im:4200, d:[["Alemania",14]]},
-    {n:"IES VALLE DEL ARLANZA", c:"09007696", p:"Burgos", pt:7.25, im:5000, d:[["Canadá",4],["Eslovenia",10]]},
-    {n:"IES DOCTORA MARÍA JOSÉ ALONSO", c:"24002494", p:"León", pt:7, im:1200, d:[["Francia",4]]},
-    {n:"IES PARQUESOL", c:"47007011", p:"Valladolid", pt:7, im:5000, d:[["Francia",29]]},
-    {n:"IES SANTA MARÍA LA REAL", c:"34003932", p:"Palencia", pt:7, im:5000, d:[["Italia",20]]},
-    {n:"IES ISABEL DE CASTILLA", c:"05000725", p:"Ávila", pt:6.3, im:5000, d:[["Estados Unidos",22]]},
-    {n:"IES JUAN DEL ENZINA", c:"24006037", p:"León", pt:6, im:1800, d:[["Noruega",6]], nota:"El centro desistió de su intercambio con un centro de Finlandia para 4 alumnos/as (Resuelvo Segundo de la Orden EDU/571/2026)."},
-    {n:"IES LEOPOLDO CANO", c:"47004597", p:"Valladolid", pt:6, im:3600, d:[["Alemania",12]]},
-    {n:"IES PADRE ISLA", c:"24006050", p:"León", pt:6, im:5000, d:[["Alemania",25]]}
-  ];
+<!-- ===================== MODAL: FICHA DE CENTRO ===================== -->
+<div class="overlay" id="fichaOverlay" hidden>
+  <div class="modal wide">
+    <div class="modal-head">
+      <div>
+        <h2 id="fichaTitulo">Centro</h2>
+        <div class="sub" id="fichaSub"></div>
+      </div>
+      <button class="modal-close" id="fichaClose" type="button" aria-label="Cerrar">×</button>
+    </div>
+    <form id="fichaForm">
+      <div class="modal-body">
 
-  var CONCERTADOS = [
-    {n:"Colegio SAGRADO CORAZÓN (Dueñas)", c:"34000281", p:"Palencia", pt:10.95, im:5000, d:[["Alemania",18]]},
-    {n:"Colegio LA SALLE", c:"34001698", p:"Palencia", pt:10.20, im:5000, d:[["Francia",25],["Países Bajos",25]]},
-    {n:"Colegio SAN JOSÉ (Salamanca)", c:"37005745", p:"Salamanca", pt:9.95, im:4500, d:[["Alemania",15]]},
-    {n:"Colegio MEDALLA MILAGROSA", c:"49005891", p:"Zamora", pt:9.75, im:3000, d:[["Francia",10]]},
-    {n:"Colegio SAGRADO CORAZÓN (León)", c:"24005823", p:"León", pt:9.45, im:5000, d:[["Francia",30]]},
-    {n:"Colegio SAN JOSÉ", c:"34001716", p:"Palencia", pt:9.30, im:4500, d:[["Alemania",15]]},
-    {n:"Colegio PABLO VI", c:"05000661", p:"Ávila", pt:9.25, im:5000, d:[["Reino Unido",20],["Alemania",15]]},
-    {n:"Colegio CALASANZ", c:"37005526", p:"Salamanca", pt:9.10, im:5000, d:[["Francia",18]]}
-  ];
+        <div class="success-msg" id="fichaConcurrenteAviso" hidden>ℹ Otro administrador ha actualizado esta ficha mientras la tenías abierta. Si guardas ahora, tus cambios se aplicarán igualmente sobre los últimos valores.</div>
 
-  var FLAGS = {
-    "Alemania":"🇩🇪","Francia":"🇫🇷","Canadá":"🇨🇦","Noruega":"🇳🇴","Estados Unidos":"🇺🇸",
-    "Italia":"🇮🇹","Países Bajos":"🇳🇱","Lituania":"🇱🇹","Eslovenia":"🇸🇮","República Checa":"🇨🇿",
-    "Hungría":"🇭🇺","Suecia":"🇸🇪","Reino Unido":"🇬🇧"
-  };
+        <fieldset class="fieldset">
+          <legend>Coordinador/a</legend>
+          <div class="field-row">
+            <div class="field"><label for="fCoordNombre">Nombre</label><input type="text" id="fCoordNombre"></div>
+            <div class="field"><label for="fCoordCorreo">Correo educacyl</label><input type="email" id="fCoordCorreo" placeholder="nombre@educa.jcyl.es"></div>
+          </div>
+          <div class="field" style="margin-top:10px;">
+            <label for="fCoordDni">DNI</label>
+            <input type="text" id="fCoordDni" placeholder="12345678A">
+            <div class="field-hint">Dato personal sensible: solo lo ven administradores autenticados.</div>
+          </div>
+        </fieldset>
 
-  var CENTROS = PUBLICOS.map(function(x){ return Object.assign({tipo:"publico"}, x); })
-    .concat(CONCERTADOS.map(function(x){ return Object.assign({tipo:"concertado"}, x); }));
+        <div class="field">
+          <label>Teléfono del centro</label>
+          <div class="mono" id="fTelefonoDisplay" style="font-size:14px; padding:9px 11px; background:var(--surface-2); border-radius:8px; border:1px solid var(--border);">—</div>
+          <div class="field-hint">Dato oficial del directorio de centros, no se edita desde aquí.</div>
+        </div>
 
-  function alumnosTotal(centro){
-    return centro.d.reduce(function(s,pair){ return s + pair[1]; }, 0);
-  }
-  function fmtEUR(n){
-    return n.toLocaleString('es-ES') + ' €';
-  }
-  function fmtNum(n){
-    return n.toLocaleString('es-ES');
-  }
+        <details class="fieldset" open>
+          <summary style="cursor:pointer; font-family:'IBM Plex Serif',Georgia,serif; font-weight:600; font-size:13.5px;">Fechas en destino</summary>
+          <div id="fFechasDestino"></div>
+        </details>
 
-  // ---------- Aggregates ----------
-  var totalCentros = CENTROS.length;
-  var totalAlumnos = CENTROS.reduce(function(s,c){ return s + alumnosTotal(c); }, 0);
-  var totalImporte = CENTROS.reduce(function(s,c){ return s + c.im; }, 0);
+        <details class="fieldset">
+          <summary style="cursor:pointer; font-family:'IBM Plex Serif',Georgia,serif; font-weight:600; font-size:13.5px;">Fechas en Castilla y León</summary>
+          <div id="fFechasCyl"></div>
+        </details>
 
-  var paisTotals = {};
-  CENTROS.forEach(function(c){
-    c.d.forEach(function(pair){
-      paisTotals[pair[0]] = (paisTotals[pair[0]] || 0) + pair[1];
-    });
-  });
-  var paisList = Object.keys(paisTotals).sort();
-  var paisRanked = Object.keys(paisTotals).map(function(k){ return [k, paisTotals[k]]; })
-    .sort(function(a,b){ return b[1]-a[1]; });
+        <fieldset class="fieldset">
+          <legend>Memoria de intercambio</legend>
+          <div class="check-row"><input type="checkbox" id="fMemoriaCheck"><label for="fMemoriaCheck">Entregada</label></div>
+          <div class="field" style="margin-top:8px; max-width:220px;"><label for="fMemoriaFecha">Fecha de entrega</label><input type="date" id="fMemoriaFecha"></div>
+        </fieldset>
 
-  var provinciaSet = {};
-  CENTROS.forEach(function(c){ provinciaSet[c.p] = true; });
-  var provinciaList = Object.keys(provinciaSet).sort();
+        <div class="memoria-economica">
+          <details>
+            <summary>Memoria económica</summary>
+            <div class="mem-parte">
+              <div class="check-row"><input type="checkbox" id="fApuntesCheck"><label for="fApuntesCheck">Apuntes</label></div>
+              <input type="date" id="fApuntesFecha" style="max-width:160px;">
+            </div>
+            <div class="mem-parte">
+              <div class="check-row"><input type="checkbox" id="fListadoCheck"><label for="fListadoCheck">Listado</label></div>
+              <input type="date" id="fListadoFecha" style="max-width:160px;">
+            </div>
+          </details>
+        </div>
 
-  var pubCentros = PUBLICOS.length, conCentros = CONCERTADOS.length;
-  var pubAlumnos = PUBLICOS.reduce(function(s,c){return s+alumnosTotal(c);},0);
-  var conAlumnos = CONCERTADOS.reduce(function(s,c){return s+alumnosTotal(c);},0);
-  var pubImporte = PUBLICOS.reduce(function(s,c){return s+c.im;},0);
-  var conImporte = CONCERTADOS.reduce(function(s,c){return s+c.im;},0);
+        <div class="field">
+          <label for="fIncidencias">Incidencias</label>
+          <textarea id="fIncidencias" placeholder="Anota aquí cualquier incidencia relacionada con este intercambio…"></textarea>
+        </div>
 
-  // ---------- Stat tiles ----------
-  var statsRow = document.getElementById('statsRow');
-  var tiles = [
-    {label:"Centros con intercambio", value: fmtNum(totalCentros), sub: pubCentros + " públicos · " + conCentros + " concertados"},
-    {label:"Alumnado participante", value: fmtNum(totalAlumnos), sub: pubAlumnos + " públicos · " + conAlumnos + " concertados"},
-    {label:"Importe total concedido", value: fmtEUR(totalImporte), sub: fmtEUR(pubImporte) + " · " + fmtEUR(conImporte)},
-    {label:"Países de destino", value: fmtNum(paisList.length), sub: "de " + fmtNum(paisRanked.reduce(function(s,x){return s+x[1];},0)) + " plazas de alumnado"}
-  ];
-  statsRow.innerHTML = tiles.map(function(t){
-    return '<div class="stat-tile"><div class="label">'+t.label+'</div><div class="value">'+t.value+'</div><div class="sub">'+t.sub+'</div></div>';
-  }).join('');
+        <div class="field">
+          <label for="fActualizadoPor">Actualizado por</label>
+          <input type="text" id="fActualizadoPor" placeholder="Tu nombre">
+        </div>
 
-  // ---------- Country bar chart ----------
-  var maxPais = paisRanked[0][1];
-  var countryChart = document.getElementById('countryChart');
-  countryChart.innerHTML = paisRanked.map(function(pair){
-    var pct = Math.max(3, Math.round(pair[1]/maxPais*100));
-    return '<div class="bar-row">'
-      + '<div class="country">'+(FLAGS[pair[0]]||'')+' '+pair[0]+'</div>'
-      + '<div class="bar-track"><div class="bar-fill" style="width:'+pct+'%" title="'+pair[0]+': '+pair[1]+' alumnos/as"></div></div>'
-      + '<div class="bar-value mono">'+pair[1]+'</div>'
-      + '</div>';
-  }).join('');
+        <div id="fichaMsg" hidden></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" id="fichaCancelBtn">Cerrar</button>
+        <button type="submit" class="btn primary" id="fichaSaveBtn">Guardar cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
 
-  // ---------- Split charts ----------
-  function splitBlock(label, aVal, bVal, fmt){
-    var total = aVal + bVal;
-    var aPct = Math.round(aVal/total*100);
-    var bPct = 100 - aPct;
-    return '<div class="split-block">'
-      + '<div class="split-label"><span>'+label+'</span><span class="mono">'+fmt(total)+'</span></div>'
-      + '<div class="split-bar">'
-      + '<div class="split-seg public" style="width:'+aPct+'%" title="Público: '+fmt(aVal)+'">'+(aPct>=12?fmt(aVal):'')+'</div>'
-      + '<div class="split-seg concertado" style="width:'+bPct+'%" title="Concertado: '+fmt(bVal)+'">'+(bPct>=12?fmt(bVal):'')+'</div>'
-      + '</div></div>';
-  }
-  document.getElementById('splitCharts').innerHTML =
-      splitBlock('Centros', pubCentros, conCentros, fmtNum)
-    + splitBlock('Alumnado', pubAlumnos, conAlumnos, fmtNum)
-    + splitBlock('Importe concedido', pubImporte, conImporte, fmtEUR);
+<!-- ===================== MODAL: DESCARGAR DATOS ===================== -->
+<div class="overlay" id="downloadOverlay" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h2>Descargar datos</h2>
+        <div class="sub">Se exportarán los centros que cumplen los filtros activos ahora mismo.</div>
+      </div>
+      <button class="modal-close" id="downloadClose" type="button" aria-label="Cerrar">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="checkbox-list">
+        <label><input type="checkbox" id="colPublico" checked> Datos públicos (provincia, tipo, puntuación, importe, destinos)</label>
+        <label><input type="checkbox" id="colCoordinador" checked> Coordinador (nombre y correo)</label>
+        <label><input type="checkbox" id="colDni"> DNI del coordinador</label>
+        <label><input type="checkbox" id="colTelefono" checked> Teléfono del centro (dato oficial)</label>
+        <label><input type="checkbox" id="colFechas" checked> Fechas en destino y en CyL</label>
+        <label><input type="checkbox" id="colMemoriaIntercambio" checked> Memoria de intercambio</label>
+        <label><input type="checkbox" id="colMemoriaEconomica" checked> Memoria económica</label>
+        <label><input type="checkbox" id="colIncidencias" checked> Incidencias</label>
+      </div>
+      <div class="field-hint">El DNI se deja sin marcar por defecto para evitar compartirlo sin querer: márcalo solo si de verdad lo necesitas en el archivo.</div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn" id="exportXlsBtn">⬇ Descargar XLS</button>
+      <button type="button" class="btn primary" id="exportPdfBtn">⬇ Descargar PDF</button>
+    </div>
+  </div>
+</div>
 
-  // ---------- Filter controls ----------
-  var provinciaSelect = document.getElementById('provinciaSelect');
-  provinciaList.forEach(function(p){
-    var opt = document.createElement('option');
-    opt.value = p; opt.textContent = p;
-    provinciaSelect.appendChild(opt);
-  });
-  var paisSelect = document.getElementById('paisSelect');
-  paisList.forEach(function(p){
-    var opt = document.createElement('option');
-    opt.value = p; opt.textContent = (FLAGS[p]||'') + ' ' + p;
-    paisSelect.appendChild(opt);
-  });
+<!-- Firebase (Authentication + Firestore) -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 
-  var state = { tipo:'todos', provincia:'todas', pais:'todos', q:'', sort:'alfabetico' };
+<!-- Exportación XLS / PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
-  function normalize(s){
-    return s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
-  }
-
-  function applyFilters(){
-    var q = normalize(state.q.trim());
-    var list = CENTROS.filter(function(c){
-      if(state.tipo !== 'todos' && c.tipo !== state.tipo) return false;
-      if(state.provincia !== 'todas' && c.p !== state.provincia) return false;
-      if(state.pais !== 'todos' && !c.d.some(function(pair){ return pair[0]===state.pais; })) return false;
-      if(q && normalize(c.n).indexOf(q) === -1 && normalize(c.c).indexOf(q) === -1) return false;
-      return true;
-    });
-
-    list.sort(function(a,b){
-      if(state.sort==='importe') return b.im - a.im;
-      if(state.sort==='alumnos') return alumnosTotal(b) - alumnosTotal(a);
-      if(state.sort==='puntuacion') return b.pt - a.pt;
-      return a.n.localeCompare(b.n, 'es');
-    });
-
-    renderCards(list);
-  }
-
-  function renderCards(list){
-    var grid = document.getElementById('cardsGrid');
-    document.getElementById('resultsCount').textContent =
-      'Mostrando ' + list.length + ' de ' + totalCentros + ' centros con intercambio aprobado';
-
-    if(list.length === 0){
-      grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">No hay centros que coincidan con estos filtros.</div>';
-      return;
-    }
-
-    grid.innerHTML = list.map(function(c){
-      var badgeClass = c.tipo === 'publico' ? 'publico' : 'concertado';
-      var badgeText = c.tipo === 'publico' ? 'Público' : 'Concertado';
-      var destinosHTML = c.d.map(function(pair){
-        var isMatch = state.pais !== 'todos' && pair[0] === state.pais;
-        return '<div class="dest-row'+(isMatch?' match':'')+'">'
-          + '<div class="dest-name"><span class="flag">'+(FLAGS[pair[0]]||'🏳')+'</span><span class="country-text">'+pair[0]+'</span></div>'
-          + '<div class="dest-count">'+pair[1]+' alumnos/as</div>'
-          + '</div>';
-      }).join('');
-
-      return '<div class="card">'
-        + '<div class="card-head"><div class="card-title">'+c.n+'</div><div class="badge '+badgeClass+'">'+badgeText+'</div></div>'
-        + '<div class="card-meta"><span>'+c.p+'</span><span class="mono">Código '+c.c+'</span></div>'
-        + '<div class="card-stats">'
-          + '<div class="stat"><div class="k">Puntuación</div><div class="v">'+c.pt.toLocaleString('es-ES')+'</div></div>'
-          + '<div class="stat"><div class="k">Alumnado</div><div class="v">'+alumnosTotal(c)+'</div></div>'
-          + '<div class="stat importe"><div class="k">Importe concedido</div><div class="v">'+fmtEUR(c.im)+'</div></div>'
-        + '</div>'
-        + '<div class="destinos"><div class="dhead">Destinos del intercambio</div>'+destinosHTML+'</div>'
-        + (c.nota ? '<div class="note">ⓘ '+c.nota+'</div>' : '')
-        + '</div>';
-    }).join('');
-  }
-
-  document.getElementById('tipoToggle').addEventListener('click', function(e){
-    var btn = e.target.closest('button');
-    if(!btn) return;
-    state.tipo = btn.getAttribute('data-tipo');
-    Array.from(this.querySelectorAll('button')).forEach(function(b){ b.classList.toggle('active', b===btn); });
-    applyFilters();
-  });
-  document.getElementById('provinciaSelect').addEventListener('change', function(e){ state.provincia = e.target.value; applyFilters(); });
-  document.getElementById('paisSelect').addEventListener('change', function(e){ state.pais = e.target.value; applyFilters(); });
-  document.getElementById('sortSelect').addEventListener('change', function(e){ state.sort = e.target.value; applyFilters(); });
-  document.getElementById('searchInput').addEventListener('input', function(e){ state.q = e.target.value; applyFilters(); });
-
-  applyFilters();
-})();
-</script>
+<script src="firebase-config.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

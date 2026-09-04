@@ -1,0 +1,29 @@
+rules_version = '2';
+
+// ============================================================================
+// Reglas de seguridad de Firestore — Gestión de Intercambios CRFPTIC
+// ----------------------------------------------------------------------------
+// Cópialas en Firebase console → Firestore Database → Reglas, y pulsa
+// "Publicar". Ver README.md para el resto de pasos.
+//
+// Qué protegen:
+//  - Nadie puede leer ni escribir la colección "centros" (fichas de gestión:
+//    coordinador, DNI, fechas, memorias, incidencias) sin haber iniciado
+//    sesión con el usuario administrador de Firebase Authentication.
+//  - El catálogo público de centros (nombre, destinos, importes...) NO vive
+//    en Firestore, así que no necesita reglas: está en el propio HTML y
+//    cualquiera que abra la web lo ve sin restricciones.
+// ============================================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /centros/{codigoCentro} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Bloquea explícitamente cualquier otra ruta no prevista.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
