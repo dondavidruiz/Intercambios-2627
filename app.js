@@ -252,11 +252,18 @@
     byId('loginForm').addEventListener('submit', function (e) {
       e.preventDefault();
       var pass = byId('loginPassword').value;
+      var nombre = byId('loginNombre').value.trim();
+      var box = byId('loginError');
+      if (!nombre) {
+        box.textContent = 'Escribe tu nombre: queda registrado en cada ficha que guardes.';
+        box.hidden = false;
+        byId('loginNombre').focus();
+        return;
+      }
       var submitBtn = byId('loginSubmit');
       submitBtn.disabled = true; submitBtn.textContent = 'Comprobando…';
       auth.signInWithEmailAndPassword(ADMIN_EMAIL, pass)
         .then(function () {
-          var nombre = byId('loginNombre').value.trim();
           try { sessionStorage.setItem('adminDisplayName', nombre); } catch (err) { /* ignorar si no hay storage */ }
           closeLoginModalKeepingPending();
         })
@@ -404,6 +411,11 @@
         return;
       }
       var nombreAdmin = byId('fActualizadoPor').value.trim();
+      if (!nombreAdmin) {
+        showFichaMsg('Escribe quién actualiza esta ficha antes de guardar.', true);
+        byId('fActualizadoPor').focus();
+        return;
+      }
       try { sessionStorage.setItem('adminDisplayName', nombreAdmin); } catch (err) {}
 
       var payload = {
