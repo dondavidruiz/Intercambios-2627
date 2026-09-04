@@ -40,20 +40,30 @@
 
   function emptyGestion() {
     return {
-      coordinador: { nombre: '', correo: '', dni: '' },
+      coordinador: { nombre: '', correo: '' },
       destinos: {},
       memoriaIntercambio: { entregada: false, fecha: '' },
       memoriaEconomica: {
         apuntes: { ok: false, fecha: '' },
         listado: { ok: false, fecha: '' }
       },
-      incidencias: '',
+      incidencias: [],
       actualizadoEn: null,
       actualizadoPor: ''
     };
   }
   function destinoDefault() {
     return { destino: { inicio: '', fin: '' }, cyl: { inicio: '', fin: '' } };
+  }
+  // Normaliza el campo incidencias: admite el formato antiguo (un texto suelto)
+  // y lo convierte en una entrada más del listado nuevo, para no perder nada
+  // de lo que ya se hubiera escrito antes de este cambio.
+  function normalizeIncidencias(raw) {
+    if (Array.isArray(raw)) return raw;
+    if (typeof raw === 'string' && raw.trim()) {
+      return [{ fecha: '', autor: '', texto: raw.trim() }];
+    }
+    return [];
   }
   function getGestion(codigo) {
     var g = gestionData[codigo];
@@ -67,7 +77,8 @@
         apuntes: Object.assign({}, base.memoriaEconomica.apuntes, (g.memoriaEconomica || {}).apuntes || {}),
         listado: Object.assign({}, base.memoriaEconomica.listado, (g.memoriaEconomica || {}).listado || {})
       },
-      destinos: g.destinos || {}
+      destinos: g.destinos || {},
+      incidencias: normalizeIncidencias(g.incidencias)
     });
   }
 
@@ -185,7 +196,7 @@
     pills.push(econOk
       ? '<span class="gpill ok">Econ. ✓</span>'
       : '<span class="gpill pend">Econ. pend.</span>');
-    if (g.incidencias && g.incidencias.trim()) pills.push('<span class="gpill warn">⚠ Incidencia</span>');
+    if (g.incidencias && g.incidencias.length) pills.push('<span class="gpill warn">⚠ ' + g.incidencias.length + (g.incidencias.length === 1 ? ' incidencia' : ' incidencias') + '</span>');
     return '<div class="gestion-badges">' + pills.join('') + '</div>';
   }
 
@@ -252,11 +263,18 @@
     byId('loginForm').addEventListener('submit', function (e) {
       e.preventDefault();
       var pass = byId('loginPassword').value;
+      var nombre = byId('loginNombre').value.trim();
+      var box = byId('loginError');
+      if (!nombre) {
+        box.textContent = 'Escribe tu nombre: queda registrado en cada ficha que guardes.';
+        box.hidden = false;
+        byId('loginNombre').focus();
+        return;
+      }
       var submitBtn = byId('loginSubmit');
       submitBtn.disabled = true; submitBtn.textContent = 'Comprobando…';
       auth.signInWithEmailAndPassword(ADMIN_EMAIL, pass)
         .then(function () {
-          var nombre = byId('loginNombre').value.trim();
           try { sessionStorage.setItem('adminDisplayName', nombre); } catch (err) { /* ignorar si no hay storage */ }
           closeLoginModalKeepingPending();
         })
@@ -310,6 +328,50 @@
   // Ficha editable
   // ---------------------------------------------------------------------
   var fichaCodigoActual = null;
+  var fichaIncidenciasActual = []; // copia de trabajo de las incidencias de la ficha abierta
+
+  function fmtFechaCorta(iso) {
+    if (!iso) return '';
+    var p = iso.split('-');
+    if (p.length !== 3) return iso;
+    return p[2] + '/' + p[1] + '/' + p[0];
+  }
+
+  function incidenciaItemHTML(inc, idx) {
+    return '<div class="incidencia-item" data-idx="' + idx + '">'
+      + '<div class="incidencia-meta">'
+      + '<input type="date" class="inc-fecha mono" data-idx="' + idx + '" value="' + esc(inc.fecha || '') + '">'
+      + '<span class="inc-autor mono" title="Administrador que registró esta incidencia">' + (inc.autor ? esc(inc.autor) : '—') + '</span>'
+      + '<button type="button" class="btn small ghost inc-delete" data-idx="' + idx + '" aria-label="Eliminar esta incidencia">✕</button>'
+      + '</div>'
+      + '<textarea class="inc-texto" data-idx="' + idx + '" placeholder="Describe la incidencia…">' + esc(inc.texto || '') + '</textarea>'
+      + '</div>';
+  }
+
+  function renderIncidenciasList() {
+    var wrap = byId('fIncidenciasList');
+    if (!fichaIncidenciasActual.length) {
+      wrap.innerHTML = '<div class="field-hint">No hay incidencias registradas todavía.</div>';
+      return;
+    }
+    wrap.innerHTML = fichaIncidenciasActual.map(function (inc, idx) { return incidenciaItemHTML(inc, idx); }).join('');
+  }
+
+  function readIncidenciasFromDOM() {
+    // Vuelca en fichaIncidenciasActual lo que haya en pantalla (fecha y texto editados)
+    // antes de leerlo, para no perder cambios hechos a mano en entradas ya existentes.
+    document.querySelectorAll('#fIncidenciasList .incidencia-item').forEach(function (item) {
+      var idx = Number(item.getAttribute('data-idx'));
+      var fecha = item.querySelector('.inc-fecha').value;
+      var texto = item.querySelector('.inc-texto').value;
+      if (fichaIncidenciasActual[idx]) {
+        fichaIncidenciasActual[idx].fecha = fecha;
+        fichaIncidenciasActual[idx].texto = texto;
+      }
+    });
+    // Descarta entradas completamente vacías (añadidas y no rellenadas)
+    return fichaIncidenciasActual.filter(function (inc) { return (inc.texto && inc.texto.trim()) || inc.fecha; });
+  }
 
   function destinoBlockHTML(pais, key, vals) {
     return '<div class="destino-block">'
@@ -332,9 +394,10 @@
 
     byId('fCoordNombre').value = g.coordinador.nombre || '';
     byId('fCoordCorreo').value = g.coordinador.correo || '';
-    byId('fCoordDni').value = g.coordinador.dni || '';
     byId('fTelefonoDisplay').textContent = centro.tel ? centro.tel : 'No disponible — revisar directorio de centros';
-    byId('fIncidencias').value = g.incidencias || '';
+
+    fichaIncidenciasActual = (g.incidencias || []).map(function (inc) { return Object.assign({}, inc); });
+    renderIncidenciasList();
 
     byId('fMemoriaCheck').checked = !!g.memoriaIntercambio.entregada;
     byId('fMemoriaFecha').value = g.memoriaIntercambio.fecha || '';
@@ -370,6 +433,7 @@
   function closeFichaModal() {
     byId('fichaOverlay').hidden = true;
     fichaCodigoActual = null;
+    fichaIncidenciasActual = [];
     var hint = byId('fichaConcurrenteAviso'); if (hint) hint.hidden = true;
   }
 
@@ -394,6 +458,30 @@
     byId('fichaCancelBtn').addEventListener('click', closeFichaModal);
     byId('fichaOverlay').addEventListener('click', function (e) { if (e.target === byId('fichaOverlay')) closeFichaModal(); });
 
+    byId('addIncidenciaBtn').addEventListener('click', function () {
+      var nombreAdmin = byId('fActualizadoPor').value.trim();
+      if (!nombreAdmin) {
+        showFichaMsg('Escribe primero quién eres en "Actualizado por": ese nombre queda registrado como autor de la incidencia.', true);
+        byId('fActualizadoPor').focus();
+        return;
+      }
+      readIncidenciasFromDOM(); // conserva lo ya escrito en pantalla
+      fichaIncidenciasActual.push({ fecha: todayStamp(), autor: nombreAdmin, texto: '' });
+      renderIncidenciasList();
+      var items = document.querySelectorAll('#fIncidenciasList .incidencia-item');
+      var last = items[items.length - 1];
+      if (last) last.querySelector('.inc-texto').focus();
+    });
+
+    byId('fIncidenciasList').addEventListener('click', function (e) {
+      var btn = e.target.closest('.inc-delete');
+      if (!btn) return;
+      readIncidenciasFromDOM();
+      var idx = Number(btn.getAttribute('data-idx'));
+      fichaIncidenciasActual.splice(idx, 1);
+      renderIncidenciasList();
+    });
+
     byId('fichaForm').addEventListener('submit', function (e) {
       e.preventDefault();
       if (!fichaCodigoActual) return;
@@ -404,14 +492,20 @@
         return;
       }
       var nombreAdmin = byId('fActualizadoPor').value.trim();
+      if (!nombreAdmin) {
+        showFichaMsg('Escribe quién actualiza esta ficha antes de guardar.', true);
+        byId('fActualizadoPor').focus();
+        return;
+      }
       try { sessionStorage.setItem('adminDisplayName', nombreAdmin); } catch (err) {}
 
       var payload = {
         coordinador: {
           nombre: byId('fCoordNombre').value.trim(),
-          correo: correo,
-          dni: byId('fCoordDni').value.trim()
+          correo: correo
         },
+        // Borra cualquier DNI guardado antes de este cambio (esta ficha ya no lo pide).
+        'coordinador.dni': firebase.firestore.FieldValue.delete(),
         destinos: readDestinosFromForm(centro),
         memoriaIntercambio: {
           entregada: byId('fMemoriaCheck').checked,
@@ -421,7 +515,7 @@
           apuntes: { ok: byId('fApuntesCheck').checked, fecha: byId('fApuntesFecha').value },
           listado: { ok: byId('fListadoCheck').checked, fecha: byId('fListadoFecha').value }
         },
-        incidencias: byId('fIncidencias').value.trim(),
+        incidencias: readIncidenciasFromDOM(),
         actualizadoEn: firebase.firestore.FieldValue.serverTimestamp(),
         actualizadoPor: nombreAdmin
       };
@@ -463,7 +557,6 @@
     var cols = {
       publico: chk('colPublico'),
       coordinador: chk('colCoordinador'),
-      dni: chk('colDni'),
       telefono: chk('colTelefono'),
       fechas: chk('colFechas'),
       memoriaIntercambio: chk('colMemoriaIntercambio'),
@@ -485,7 +578,6 @@
         row["Coordinador · Nombre"] = g.coordinador.nombre;
         row["Coordinador · Correo"] = g.coordinador.correo;
       }
-      if (cols.dni) row["Coordinador · DNI"] = g.coordinador.dni;
       if (cols.telefono) row["Teléfono centro"] = c.tel || '';
       if (cols.fechas) {
         row["Fechas en destino"] = c.d.map(function (p) {
@@ -507,7 +599,11 @@
         row["Memoria económica · Listado"] = g.memoriaEconomica.listado.ok ? 'Sí' : 'No';
         row["Memoria económica · Listado fecha"] = g.memoriaEconomica.listado.fecha || '';
       }
-      if (cols.incidencias) row["Incidencias"] = g.incidencias;
+      if (cols.incidencias) {
+        row["Incidencias"] = (g.incidencias || []).map(function (inc) {
+          return '[' + fmtFechaCorta(inc.fecha) + (inc.autor ? ' · ' + inc.autor : '') + '] ' + inc.texto;
+        }).join(' | ');
+      }
       return row;
     });
     return rows;
