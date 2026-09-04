@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Gestión de Intercambios 26/27 · CRFPTIC</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
@@ -38,15 +38,15 @@
       <div class="section-title">Panorama general</div>
       <div class="section-note">Cifras calculadas sobre los 51 centros con intercambio aprobado</div>
     </div>
-    <div class="charts-grid" style="display:grid; grid-template-columns:1.35fr 1fr; gap:14px;">
+    <div class="charts-grid">
       <div class="panel">
         <div class="section-note" style="margin-bottom:10px;">Alumnado por país de destino (total de alumnos/as previstos)</div>
         <div id="countryChart"></div>
       </div>
       <div class="panel">
-        <div class="legend" style="display:flex; gap:16px; align-items:center; font-size:12.5px; color:var(--ink-secondary); margin-bottom:10px;">
-          <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;display:inline-block;background:var(--public)"></span>Público</span>
-          <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;display:inline-block;background:var(--concertado)"></span>Concertado</span>
+        <div class="legend">
+          <span class="legend-item"><span class="swatch" style="background:var(--public)"></span>Público</span>
+          <span class="legend-item"><span class="swatch" style="background:var(--concertado)"></span>Concertado</span>
         </div>
         <div id="splitCharts"></div>
       </div>
@@ -102,11 +102,12 @@
           <input type="password" id="loginPassword" autocomplete="current-password" required>
         </div>
         <div class="field">
-          <label for="loginNombre">Tu nombre (opcional, queda registrado en lo que guardes)</label>
-          <input type="text" id="loginNombre" autocomplete="name">
+          <label for="loginNombre">Tu nombre</label>
+          <input type="text" id="loginNombre" autocomplete="name" required>
+          <div class="field-hint">Queda registrado en cada ficha que guardes, para saber quién actualizó qué.</div>
         </div>
         <div class="error-msg" id="loginError" hidden></div>
-        <div class="field-hint">Esta clave solo controla quién puede editar. Cualquiera puede ver y filtrar el listado sin ella.</div>
+        <div class="field-hint">La clave solo controla quién puede editar. Cualquiera puede ver y filtrar el listado sin ella.</div>
       </div>
       <div class="modal-actions">
         <button type="button" class="btn ghost" id="loginCancel" onclick="document.getElementById('loginClose').click()">Cancelar</button>
@@ -187,7 +188,7 @@
 
         <div class="field">
           <label for="fActualizadoPor">Actualizado por</label>
-          <input type="text" id="fActualizadoPor" placeholder="Tu nombre">
+          <input type="text" id="fActualizadoPor" placeholder="Tu nombre" required>
         </div>
 
         <div id="fichaMsg" hidden></div>
@@ -240,8 +241,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
-<script src="firebase-config.js"></script>
-<script src="data.js"></script>
-<script src="app.js"></script>
+<script src="firebase-config.js?v=2"></script>
+<script src="data.js?v=2"></script>
+<script src="app.js?v=2"></script>
 </body>
 </html>
