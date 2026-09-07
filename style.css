@@ -105,6 +105,9 @@ section{ margin-top:26px; }
 .tipo-toggle button.active[data-tipo="publico"]{ background:var(--public-soft); color:var(--public); }
 .tipo-toggle button.active[data-tipo="concertado"]{ background:var(--concertado-soft); color:var(--concertado); }
 .tipo-toggle button.active[data-tipo="todos"]{ background:var(--gold-soft); color:var(--gold); }
+.tipo-toggle.estado-toggle button.active[data-estado="alli"]{ background:var(--ok-soft); color:var(--ok); }
+.tipo-toggle.estado-toggle button.active[data-estado="aqui"]{ background:var(--warn-soft); color:var(--warn); }
+.tipo-toggle.estado-toggle button.active[data-estado="todos"]{ background:var(--gold-soft); color:var(--gold); }
 
 .results-count{ font-size:12.5px; color:var(--ink-muted); margin:12px 2px 12px; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
 
@@ -126,11 +129,17 @@ section{ margin-top:26px; }
 .card-stats .stat.importe .v{ color:var(--gold); }
 .destinos{ display:flex; flex-direction:column; gap:6px; }
 .destinos .dhead{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-muted); font-weight:600; }
+.dest-item{ display:flex; flex-direction:column; }
 .dest-row{ display:flex; align-items:center; justify-content:space-between; background:var(--surface-2); border-radius:7px; padding:6px 10px; font-size:13px; gap:8px; }
+.dest-row.status-alli{ background:var(--ok-soft); }
+.dest-row.status-aqui{ background:var(--warn-soft); }
 .dest-name{ display:flex; align-items:center; gap:7px; min-width:0; }
 .dest-name .flag{ font-size:15px; line-height:1; }
 .dest-name .country-text{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .dest-count{ font-family:"IBM Plex Mono",monospace; font-weight:600; font-size:12.5px; color:var(--ink-secondary); flex:none; }
+.dest-frase{ font-size:11px; font-weight:600; padding:3px 2px 0; }
+.dest-frase.frase-alli{ color:var(--ok); }
+.dest-frase.frase-aqui{ color:var(--warn); }
 .note{ font-size:11.5px; color:var(--ink-muted); background:var(--surface-2); border-radius:7px; padding:6px 9px; line-height:1.4; }
 .card-footer{ display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:11.5px; color:var(--ink-muted); }
 .gestion-badges{ display:flex; gap:6px; flex-wrap:wrap; }
