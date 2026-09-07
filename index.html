@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Gestión de Intercambios 26/27 · CRFPTIC</title>
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
@@ -63,6 +63,11 @@
         <button data-tipo="todos" class="active" type="button">Todos</button>
         <button data-tipo="publico" type="button">Público</button>
         <button data-tipo="concertado" type="button">Concertado</button>
+      </div>
+      <div class="tipo-toggle estado-toggle" id="estadoToggle" hidden>
+        <button data-estado="todos" class="active" type="button">Cualquier estado</button>
+        <button data-estado="alli" type="button">🟢 Españoles allí</button>
+        <button data-estado="aqui" type="button">🔴 Extranjeros aquí</button>
       </div>
       <select id="provinciaSelect" aria-label="Filtrar por provincia"><option value="todas">Todas las provincias</option></select>
       <select id="paisSelect" aria-label="Filtrar por país de destino"><option value="todos">Todos los destinos</option></select>
@@ -237,6 +242,6 @@
 
 <script src="firebase-config.js?v=3"></script>
 <script src="data.js?v=3"></script>
-<script src="app.js?v=4"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>
