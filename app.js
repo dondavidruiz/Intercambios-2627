@@ -55,6 +55,18 @@
   function destinoDefault() {
     return { destino: { inicio: '', fin: '' }, cyl: { inicio: '', fin: '' } };
   }
+  // Estado "en vivo" de un destino según las fechas guardadas por el admin:
+  // 'alli'  -> hoy cae dentro del viaje de alumnado español a ese país
+  // 'aqui'  -> hoy cae dentro de la estancia del alumnado extranjero en CyL
+  // null    -> no hay fechas guardadas, o hoy no cae en ninguna de las dos
+  function estadoDestino(vals) {
+    if (!vals) return null;
+    var hoy = todayStamp();
+    var d = vals.destino, c = vals.cyl;
+    if (d && d.inicio && d.fin && hoy >= d.inicio && hoy <= d.fin) return 'alli';
+    if (c && c.inicio && c.fin && hoy >= c.inicio && hoy <= c.fin) return 'aqui';
+    return null;
+  }
   // Normaliza el campo incidencias: admite el formato antiguo (un texto suelto)
   // y lo convierte en una entrada más del listado nuevo, para no perder nada
   // de lo que ya se hubiera escrito antes de este cambio.
@@ -142,7 +154,7 @@
   // ---------------------------------------------------------------------
   // Filtros y listado de fichas
   // ---------------------------------------------------------------------
-  var state = { tipo: 'todos', provincia: 'todas', pais: 'todos', q: '', sort: 'alfabetico' };
+  var state = { tipo: 'todos', provincia: 'todas', pais: 'todos', q: '', sort: 'alfabetico', estado: 'todos' };
   var currentList = CENTROS.slice();
 
   function setupFilterControls() {
@@ -160,6 +172,12 @@
       Array.from(this.querySelectorAll('button')).forEach(function (b) { b.classList.toggle('active', b === btn); });
       applyFilters();
     });
+    byId('estadoToggle').addEventListener('click', function (e) {
+      var btn = e.target.closest('button'); if (!btn) return;
+      state.estado = btn.getAttribute('data-estado');
+      Array.from(this.querySelectorAll('button')).forEach(function (b) { b.classList.toggle('active', b === btn); });
+      applyFilters();
+    });
     provinciaSelect.addEventListener('change', function (e) { state.provincia = e.target.value; applyFilters(); });
     paisSelect.addEventListener('change', function (e) { state.pais = e.target.value; applyFilters(); });
     byId('sortSelect').addEventListener('change', function (e) { state.sort = e.target.value; applyFilters(); });
@@ -173,6 +191,11 @@
       if (state.provincia !== 'todas' && c.p !== state.provincia) return false;
       if (state.pais !== 'todos' && !c.d.some(function (pair) { return pair[0] === state.pais; })) return false;
       if (q && normalize(c.n).indexOf(q) === -1 && normalize(c.c).indexOf(q) === -1) return false;
+      if (state.estado !== 'todos' && isAdmin) {
+        var g = getGestion(c.c);
+        var match = c.d.some(function (pair) { return estadoDestino(g.destinos[pair[0]]) === state.estado; });
+        if (!match) return false;
+      }
       return true;
     });
     list.sort(function (a, b) {
@@ -213,11 +236,20 @@
     grid.innerHTML = list.map(function (c) {
       var badgeClass = c.tipo === 'publico' ? 'publico' : 'concertado';
       var badgeText = c.tipo === 'publico' ? 'Público' : 'Concertado';
+      var g = isAdmin ? getGestion(c.c) : null;
       var destinosHTML = c.d.map(function (pair) {
         var isMatch = state.pais !== 'todos' && pair[0] === state.pais;
-        return '<div class="dest-row' + (isMatch ? ' match' : '') + '">'
+        var estado = g ? estadoDestino(g.destinos[pair[0]]) : null;
+        var rowClass = 'dest-row' + (isMatch ? ' match' : '') + (estado ? ' status-' + estado : '');
+        var fraseHTML = '';
+        if (estado === 'alli') fraseHTML = '<div class="dest-frase frase-alli">🟢 Alumnos españoles allí ahora</div>';
+        else if (estado === 'aqui') fraseHTML = '<div class="dest-frase frase-aqui">🔴 Alumnos extranjeros aquí ahora</div>';
+        return '<div class="dest-item">'
+          + '<div class="' + rowClass + '">'
           + '<div class="dest-name"><span class="flag">' + (FLAGS[pair[0]] || '🏳') + '</span><span class="country-text">' + esc(pair[0]) + '</span></div>'
-          + '<div class="dest-count">' + pair[1] + ' alumnos/as</div></div>';
+          + '<div class="dest-count">' + pair[1] + ' alumnos/as</div></div>'
+          + fraseHTML
+          + '</div>';
       }).join('');
       return '<button type="button" class="card" data-codigo="' + c.c + '">'
         + '<div class="card-head"><div class="card-title">' + esc(c.n) + '</div><div class="badge ' + badgeClass + '">' + badgeText + '</div></div>'
@@ -299,6 +331,7 @@
     byId('adminSignedOut').hidden = isAdmin;
     byId('adminSignedIn').hidden = !isAdmin;
     byId('downloadBtn').hidden = !isAdmin;
+    byId('estadoToggle').hidden = !isAdmin;
     if (isAdmin) {
       subscribeGestion();
     } else {
@@ -306,17 +339,23 @@
       gestionData = {};
       closeFichaModal();
       closeDownloadModal();
+      // Sin sesión no hay fechas que consultar: se resetea el filtro para que
+      // no quede "escondido" un filtro activo que ya no se puede ver ni tocar.
+      state.estado = 'todos';
+      var estadoToggle = byId('estadoToggle');
+      Array.from(estadoToggle.querySelectorAll('button')).forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-estado') === 'todos'); });
     }
-    renderCards(currentList);
+    applyFilters();
   });
-
-  function subscribeGestion() {
+     function subscribeGestion() {
     if (gestionUnsub) return;
     gestionUnsub = db.collection('centros').onSnapshot(function (snap) {
       var map = {};
       snap.forEach(function (doc) { map[doc.id] = doc.data(); });
       gestionData = map;
-      renderCards(currentList);
+      // applyFilters (no solo renderCards) porque el filtro "Españoles allí / Extranjeros
+      // aquí" depende de estas fechas y debe recalcularse en cuanto llegan datos frescos.
+      applyFilters();
       if (!byId('fichaOverlay').hidden) refreshOpenFicha();
     }, function (err) {
       console.error('Error leyendo Firestore:', err);
