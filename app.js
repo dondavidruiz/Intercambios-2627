@@ -47,7 +47,9 @@
         apuntes: { ok: false, fecha: '' },
         listado: { ok: false, fecha: '' }
       },
+      devolucion: { importe: '', solicitada: false, hecha: false },
       incidencias: [],
+      seguimiento: [],
       actualizadoEn: null,
       actualizadoPor: ''
     };
@@ -69,13 +71,31 @@
   }
   // Normaliza el campo incidencias: admite el formato antiguo (un texto suelto)
   // y lo convierte en una entrada más del listado nuevo, para no perder nada
-  // de lo que ya se hubiera escrito antes de este cambio.
+  // de lo que ya se hubiera escrito antes de este cambio. También añade los
+  // campos "leida"/"gestionada" a incidencias antiguas que no los tenían
+  // (se consideran sin leer hasta que un administrador las marque).
   function normalizeIncidencias(raw) {
-    if (Array.isArray(raw)) return raw;
-    if (typeof raw === 'string' && raw.trim()) {
-      return [{ fecha: '', autor: '', texto: raw.trim() }];
-    }
-    return [];
+    var arr;
+    if (Array.isArray(raw)) arr = raw;
+    else if (typeof raw === 'string' && raw.trim()) arr = [{ fecha: '', autor: '', texto: raw.trim() }];
+    else arr = [];
+    return arr.map(function (inc) {
+      return {
+        fecha: inc.fecha || '',
+        autor: inc.autor || '',
+        texto: inc.texto || '',
+        leida: !!inc.leida,
+        gestionada: !!inc.gestionada
+      };
+    });
+  }
+  // Normaliza el campo seguimiento (siempre un listado de eventos con fecha,
+  // autor y texto, igual que incidencias pero sin estado de leída/gestionada).
+  function normalizeSeguimiento(raw) {
+    if (!Array.isArray(raw)) return [];
+    return raw.map(function (ev) {
+      return { fecha: ev.fecha || '', autor: ev.autor || '', texto: ev.texto || '' };
+    });
   }
   function getGestion(codigo) {
     var g = gestionData[codigo];
@@ -89,9 +109,29 @@
         apuntes: Object.assign({}, base.memoriaEconomica.apuntes, (g.memoriaEconomica || {}).apuntes || {}),
         listado: Object.assign({}, base.memoriaEconomica.listado, (g.memoriaEconomica || {}).listado || {})
       },
+      devolucion: Object.assign({}, base.devolucion, g.devolucion || {}),
       destinos: g.destinos || {},
-      incidencias: normalizeIncidencias(g.incidencias)
+      incidencias: normalizeIncidencias(g.incidencias),
+      seguimiento: normalizeSeguimiento(g.seguimiento)
     });
+  }
+  // Nº total de incidencias sin marcar como "leída" en todos los centros
+  // (solo tiene sentido para un administrador, que es quien ve estos datos).
+  function countIncidenciasSinLeer() {
+    if (!isAdmin) return 0;
+    var total = 0;
+    CENTROS.forEach(function (c) {
+      total += getGestion(c.c).incidencias.filter(function (inc) { return !inc.leida; }).length;
+    });
+    return total;
+  }
+  function renderUnreadWarning() {
+    var box = byId('unreadWarning');
+    if (!box) return;
+    var n = countIncidenciasSinLeer();
+    if (!isAdmin || n === 0) { box.hidden = true; return; }
+    box.textContent = n === 1 ? '⚠ ¡1 incidencia sin leer!' : '⚠ ¡' + n + ' incidencias sin leer!';
+    box.hidden = false;
   }
 
   // ---------------------------------------------------------------------
@@ -206,6 +246,7 @@
     });
     currentList = list;
     renderCards(list);
+    renderUnreadWarning();
   }
 
   function gestionBadgesHTML(centro) {
@@ -237,7 +278,7 @@
       var badgeClass = c.tipo === 'publico' ? 'publico' : 'concertado';
       var badgeText = c.tipo === 'publico' ? 'Público' : 'Concertado';
       var g = isAdmin ? getGestion(c.c) : null;
-      var destinosHTML = c.d.map(function (pair) {
+             var destinosHTML = c.d.map(function (pair) {
         var isMatch = state.pais !== 'todos' && pair[0] === state.pais;
         var estado = g ? estadoDestino(g.destinos[pair[0]]) : null;
         var rowClass = 'dest-row' + (isMatch ? ' match' : '') + (estado ? ' status-' + estado : '');
@@ -347,7 +388,8 @@
     }
     applyFilters();
   });
-     function subscribeGestion() {
+
+  function subscribeGestion() {
     if (gestionUnsub) return;
     gestionUnsub = db.collection('centros').onSnapshot(function (snap) {
       var map = {};
@@ -381,6 +423,8 @@
       + '<div class="incidencia-meta">'
       + '<input type="date" class="inc-fecha mono" data-idx="' + idx + '" value="' + esc(inc.fecha || '') + '">'
       + '<span class="inc-autor mono" title="Administrador que registró esta incidencia">' + (inc.autor ? esc(inc.autor) : '—') + '</span>'
+      + '<label class="inc-check-label"><input type="checkbox" class="inc-leida" data-idx="' + idx + '"' + (inc.leida ? ' checked' : '') + '> Leída</label>'
+      + '<label class="inc-check-label"><input type="checkbox" class="inc-gestionada" data-idx="' + idx + '"' + (inc.gestionada ? ' checked' : '') + '> Gestionada</label>'
       + '<button type="button" class="btn small ghost inc-delete" data-idx="' + idx + '" aria-label="Eliminar esta incidencia">✕</button>'
       + '</div>'
       + '<textarea class="inc-texto" data-idx="' + idx + '" placeholder="Describe la incidencia…">' + esc(inc.texto || '') + '</textarea>'
@@ -397,19 +441,63 @@
   }
 
   function readIncidenciasFromDOM() {
-    // Vuelca en fichaIncidenciasActual lo que haya en pantalla (fecha y texto editados)
-    // antes de leerlo, para no perder cambios hechos a mano en entradas ya existentes.
+    // Vuelca en fichaIncidenciasActual lo que haya en pantalla (fecha, texto y los
+    // checks de leída/gestionada editados) antes de leerlo, para no perder cambios
+    // hechos a mano en entradas ya existentes.
     document.querySelectorAll('#fIncidenciasList .incidencia-item').forEach(function (item) {
       var idx = Number(item.getAttribute('data-idx'));
       var fecha = item.querySelector('.inc-fecha').value;
       var texto = item.querySelector('.inc-texto').value;
+      var leida = item.querySelector('.inc-leida').checked;
+      var gestionada = item.querySelector('.inc-gestionada').checked;
       if (fichaIncidenciasActual[idx]) {
         fichaIncidenciasActual[idx].fecha = fecha;
         fichaIncidenciasActual[idx].texto = texto;
+        fichaIncidenciasActual[idx].leida = leida;
+        fichaIncidenciasActual[idx].gestionada = gestionada;
       }
     });
     // Descarta entradas completamente vacías (añadidas y no rellenadas)
     return fichaIncidenciasActual.filter(function (inc) { return (inc.texto && inc.texto.trim()) || inc.fecha; });
+  }
+
+  // ---------------------------------------------------------------------
+  // Seguimiento (idéntico a incidencias en estructura, sin estado leída/gestionada
+  // y sin aviso en la portada de la ficha)
+  // ---------------------------------------------------------------------
+  var fichaSeguimientoActual = []; // copia de trabajo del seguimiento de la ficha abierta
+
+  function seguimientoItemHTML(ev, idx) {
+    return '<div class="incidencia-item" data-idx="' + idx + '">'
+      + '<div class="incidencia-meta">'
+      + '<input type="date" class="seg-fecha mono" data-idx="' + idx + '" value="' + esc(ev.fecha || '') + '">'
+      + '<span class="inc-autor mono" title="Administrador que registró este evento">' + (ev.autor ? esc(ev.autor) : '—') + '</span>'
+      + '<button type="button" class="btn small ghost seg-delete" data-idx="' + idx + '" aria-label="Eliminar este evento">✕</button>'
+      + '</div>'
+      + '<textarea class="seg-texto" data-idx="' + idx + '" placeholder="Describe el evento de seguimiento…">' + esc(ev.texto || '') + '</textarea>'
+      + '</div>';
+  }
+
+  function renderSeguimientoList() {
+    var wrap = byId('fSeguimientoList');
+    if (!fichaSeguimientoActual.length) {
+      wrap.innerHTML = '<div class="field-hint">No hay eventos de seguimiento registrados todavía.</div>';
+      return;
+    }
+    wrap.innerHTML = fichaSeguimientoActual.map(function (ev, idx) { return seguimientoItemHTML(ev, idx); }).join('');
+  }
+
+  function readSeguimientoFromDOM() {
+    document.querySelectorAll('#fSeguimientoList .incidencia-item').forEach(function (item) {
+      var idx = Number(item.getAttribute('data-idx'));
+      var fecha = item.querySelector('.seg-fecha').value;
+      var texto = item.querySelector('.seg-texto').value;
+      if (fichaSeguimientoActual[idx]) {
+        fichaSeguimientoActual[idx].fecha = fecha;
+        fichaSeguimientoActual[idx].texto = texto;
+      }
+    });
+    return fichaSeguimientoActual.filter(function (ev) { return (ev.texto && ev.texto.trim()) || ev.fecha; });
   }
 
   function destinoBlockHTML(pais, key, vals) {
@@ -438,12 +526,18 @@
     fichaIncidenciasActual = (g.incidencias || []).map(function (inc) { return Object.assign({}, inc); });
     renderIncidenciasList();
 
+    fichaSeguimientoActual = (g.seguimiento || []).map(function (ev) { return Object.assign({}, ev); });
+    renderSeguimientoList();
+
     byId('fMemoriaCheck').checked = !!g.memoriaIntercambio.entregada;
     byId('fMemoriaFecha').value = g.memoriaIntercambio.fecha || '';
     byId('fApuntesCheck').checked = !!g.memoriaEconomica.apuntes.ok;
     byId('fApuntesFecha').value = g.memoriaEconomica.apuntes.fecha || '';
     byId('fListadoCheck').checked = !!g.memoriaEconomica.listado.ok;
     byId('fListadoFecha').value = g.memoriaEconomica.listado.fecha || '';
+    byId('fDevolucionImporte').value = g.devolucion.importe || '';
+    byId('fDevolucionSolicitada').checked = !!g.devolucion.solicitada;
+    byId('fDevolucionHecha').checked = !!g.devolucion.hecha;
 
     var destWrap = byId('fFechasDestino'); var cylWrap = byId('fFechasCyl');
     destWrap.innerHTML = ''; cylWrap.innerHTML = '';
@@ -464,7 +558,7 @@
     // Si otro administrador ha guardado cambios mientras esta ficha estaba abierta,
     // no pisamos lo que se está escribiendo: solo mostramos aviso.
     if (fichaCodigoActual) {
-      var hint = byId('fichaConcurrenteAviso');
+             var hint = byId('fichaConcurrenteAviso');
       if (hint) hint.hidden = false;
     }
   }
@@ -473,6 +567,7 @@
     byId('fichaOverlay').hidden = true;
     fichaCodigoActual = null;
     fichaIncidenciasActual = [];
+    fichaSeguimientoActual = [];
     var hint = byId('fichaConcurrenteAviso'); if (hint) hint.hidden = true;
   }
 
@@ -505,7 +600,7 @@
         return;
       }
       readIncidenciasFromDOM(); // conserva lo ya escrito en pantalla
-      fichaIncidenciasActual.push({ fecha: todayStamp(), autor: nombreAdmin, texto: '' });
+      fichaIncidenciasActual.push({ fecha: todayStamp(), autor: nombreAdmin, texto: '', leida: false, gestionada: false });
       renderIncidenciasList();
       var items = document.querySelectorAll('#fIncidenciasList .incidencia-item');
       var last = items[items.length - 1];
@@ -519,6 +614,30 @@
       var idx = Number(btn.getAttribute('data-idx'));
       fichaIncidenciasActual.splice(idx, 1);
       renderIncidenciasList();
+    });
+
+    byId('addSeguimientoBtn').addEventListener('click', function () {
+      var nombreAdmin = byId('fActualizadoPor').value.trim();
+      if (!nombreAdmin) {
+        showFichaMsg('Escribe primero quién eres en "Actualizado por": ese nombre queda registrado como autor del evento.', true);
+        byId('fActualizadoPor').focus();
+        return;
+      }
+      readSeguimientoFromDOM(); // conserva lo ya escrito en pantalla
+      fichaSeguimientoActual.push({ fecha: todayStamp(), autor: nombreAdmin, texto: '' });
+      renderSeguimientoList();
+      var itemsSeg = document.querySelectorAll('#fSeguimientoList .incidencia-item');
+      var lastSeg = itemsSeg[itemsSeg.length - 1];
+      if (lastSeg) lastSeg.querySelector('.seg-texto').focus();
+    });
+
+    byId('fSeguimientoList').addEventListener('click', function (e) {
+      var btn = e.target.closest('.seg-delete');
+      if (!btn) return;
+      readSeguimientoFromDOM();
+      var idx = Number(btn.getAttribute('data-idx'));
+      fichaSeguimientoActual.splice(idx, 1);
+      renderSeguimientoList();
     });
 
     byId('fichaForm').addEventListener('submit', function (e) {
@@ -554,7 +673,13 @@
           apuntes: { ok: byId('fApuntesCheck').checked, fecha: byId('fApuntesFecha').value },
           listado: { ok: byId('fListadoCheck').checked, fecha: byId('fListadoFecha').value }
         },
+        devolucion: {
+          importe: byId('fDevolucionImporte').value,
+          solicitada: byId('fDevolucionSolicitada').checked,
+          hecha: byId('fDevolucionHecha').checked
+        },
         incidencias: readIncidenciasFromDOM(),
+        seguimiento: readSeguimientoFromDOM(),
         actualizadoEn: firebase.firestore.FieldValue.serverTimestamp(),
         actualizadoPor: nombreAdmin
       };
@@ -600,6 +725,8 @@
       fechas: chk('colFechas'),
       memoriaIntercambio: chk('colMemoriaIntercambio'),
       memoriaEconomica: chk('colMemoriaEconomica'),
+      devolucion: chk('colDevolucion'),
+      seguimiento: chk('colSeguimiento'),
       incidencias: chk('colIncidencias')
     };
     var rows = currentList.map(function (c) {
@@ -638,9 +765,21 @@
         row["Memoria económica · Listado"] = g.memoriaEconomica.listado.ok ? 'Sí' : 'No';
         row["Memoria económica · Listado fecha"] = g.memoriaEconomica.listado.fecha || '';
       }
+      if (cols.devolucion) {
+        row["Devolución · Importe (€)"] = g.devolucion.importe || '';
+        row["Devolución · Solicitada"] = g.devolucion.solicitada ? 'Sí' : 'No';
+        row["Devolución · Hecha"] = g.devolucion.hecha ? 'Sí' : 'No';
+      }
+      if (cols.seguimiento) {
+        row["Seguimiento"] = (g.seguimiento || []).map(function (ev) {
+          return '[' + fmtFechaCorta(ev.fecha) + (ev.autor ? ' · ' + ev.autor : '') + '] ' + ev.texto;
+        }).join(' | ');
+      }
       if (cols.incidencias) {
         row["Incidencias"] = (g.incidencias || []).map(function (inc) {
-          return '[' + fmtFechaCorta(inc.fecha) + (inc.autor ? ' · ' + inc.autor : '') + '] ' + inc.texto;
+          var estado = inc.leida ? 'leída' : 'sin leer';
+          if (inc.gestionada) estado += ', gestionada';
+          return '[' + fmtFechaCorta(inc.fecha) + (inc.autor ? ' · ' + inc.autor : '') + ' · ' + estado + '] ' + inc.texto;
         }).join(' | ');
       }
       return row;
